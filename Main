@@ -1,0 +1,109 @@
+import pygame
+import random
+pygame.init()
+
+pygame.display.set_caption("Card game: War")
+screen = pygame.display.set_mode ((700,500))
+
+class card:
+  def __init__(self, suit, number):
+    self.suit = suit
+    self.number = number
+  
+  def draw(self, x, y):
+    pygame.draw.rect(screen, (255,255,255), (x,y,100,180))
+    pygame.draw.rect(screen, (0,0,0), (x,y,100,180),3)
+    font = pygame.font.Font('freesansbold.ttf',32)
+    text = font.render(str(self.number),1,(0,0,0))
+    text2 = font.render(str(self.suit),1,(255,0,0))
+    screen.blit(text, (x+30, y+30))
+    screen.blit(text2, (x+10, y+60))
+
+
+Deck = list()
+for j in range(4):
+  for i in range(13):
+    Deck.append(card(j, i))
+random.shuffle(Deck)
+p1hand = list()
+for i in range(26):
+  p1hand.append(Deck[i])
+p1discard = list()
+p2hand = list()
+for j in range(26,52):
+  p2hand.append(Deck[j])
+p2discard = list()
+clock = pygame.time.Clock()
+doExit = False 
+
+#instantiate 3 objects
+c1 = card(0,4)
+c2 = card(1,7)
+c3 = card(3,9)
+
+
+turn = False
+
+
+#GAME LOOP---------------------------------------------------------------
+while not doExit:
+  clock.tick(60)
+  for event in pygame.event.get():
+    if event.type == pygame.QUIT: 
+        doExit = True 
+  event = pygame.event.wait()
+
+  if event.type == pygame.QUIT:
+    doExit = True
+
+  if event.type == pygame.MOUSEBUTTONDOWN:
+    turn = True
+  
+  if event.type == pygame.MOUSEBUTTONUP:
+    turn = False
+
+  if event.type == pygame.MOUSEMOTION:
+    mousePos = event.pos
+
+
+    if len(p1hand) - 1 < 0 or len(p2hand) - 1 < 0: # if the players run out of cards
+        doExit = True
+        if p1discard[len(p1discard)-1].number > p1discard[len(p1discard)-1].number: # if player 1's final card is bigger
+            print("Player 1 wins!")
+        else:
+            print("Player 2 wins!")
+
+    if turn == True and len(p1hand) > 0 and   len(p2hand) > 0:
+        if p1hand[len(p1hand)-1].number > p2hand[len(p2hand)-1].number:
+            print("Player 1 wins the round!")
+            p1discard.append(p1hand[len(p1hand)-1])
+            p2discard.append(p2hand[len(p2hand)-1])
+            p1hand.pop(len(p1hand)-1)
+            p2hand.pop(len(p2hand)-1)
+    else:
+            print("Player 2 wins the round")
+            p2discard.append(p1hand[len(p1hand)-1])
+            p1discard.append(p2hand[len(p2hand)-1])
+            p1hand.pop(len(p1hand)-1)
+            p2hand.pop(len(p2hand)-1)
+
+
+
+#RENDER SECTION--------------------------------------------------------
+  screen.fill((0,150,0))#wipes your screen
+  #for i in range(52):
+   # Deck[i].draw(20+i*5, 20+i*3)
+
+  for i in range(0,len(p1hand)):
+        p1hand[i].draw(100,50)
+
+  for i in range(0,len(p2hand)):
+        p2hand[i].draw(300,50)
+
+  for i in range(0,len(p1discard)):
+        p1discard[i].draw(100+i*10, 200)
+  for i in range(0,len(p2discard)):
+        p2discard[i].draw(300+i*10, 380)
+  pygame.display.flip()
+
+pygame.quit()
